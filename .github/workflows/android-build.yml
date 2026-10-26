@@ -1,0 +1,43 @@
+name: Build Qt QML Android APK
+
+on:
+  workflow_dispatch:  # <-- вот эта строчка даёт кнопку в интерфейсе
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # Запускаем все шаги сборки внутри указанного Docker-образа
+    container:
+      image: ghcr.io/letis-1987/apk-builder/qt-android-builder:latest
+
+    steps:
+      # Step 1: Клонируем исходный код нашего проекта в контейнер
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # Step 2: Конфигурируем проект с помощью CMake и генератора Ninja
+      # Внутри готовых Docker-образов переменные путей к Qt и Android SDK/NDK 
+      # обычно уже экспортированы (например, $QT_ANDROID_PATH, $ANDROID_SDK_ROOT).
+      - name: Configure CMake
+        run: |
+          qt-cmake -G "Ninja" \
+            -S . \
+            -B build_android \
+            -DANDROID_ABI="arm64-v8a"
+
+      # Step 3: Компиляция C++ кода через Ninja
+      - name: Build with Ninja
+        run: cmake --build build_android --target all
+
+      # Step 4: Упаковка в финальный APK файл
+      - name: Generate APK Package
+        run: cmake --build build_android --target apk
+
+      # Step 5: Сохраняем готовый APK как артефакт сборки GitHub,
+      # чтобы его можно было скачать из интерфейса GitHub Actions.
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-app-debug-apk
+          path: build_android/android-build/build/outputs/apk/debug/android-build-debug.apk
