@@ -16,16 +16,17 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # Step 2: Конфигурируем проект с помощью qt-cmake (это избавит от кучи флагов)
-      # Используем абсолютные пути, которые гарантированно есть внутри вашего Docker-образа
+      # Step 2: Конфигурируем проект с явным указанием путей Qt
       - name: Configure CMake
         run: |
-          /opt/qt/6.8.0/android_arm64_v8a/bin/qt-cmake -G "Ninja" \
+          cmake -G "Ninja" \
             -S . \
             -B build_android \
             -DCMAKE_TOOLCHAIN_FILE="/opt/android-sdk/ndk/26.1.10909125/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI="arm64-v8a" \
-            -DANDROID_PLATFORM="latest"
+            -DANDROID_PLATFORM="latest" \
+            -DCMAKE_PREFIX_PATH="/opt/qt/6.8.0/android_arm64_v8a" \
+            -DQT_HOST_PATH="/opt/qt/6.8.0/gcc_64"
 
       # Step 3: Компиляция C++ кода через Ninja
       - name: Build with Ninja
