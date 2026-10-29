@@ -9,7 +9,7 @@ jobs:
     
     # Запускаем все шаги сборки внутри указанного Docker-образа
     container:
-      image: ghcr.io/letis-1987/apk-builder/qt-android-builder:latest
+      image: ghcr.io/letis-1987/apk-builder:latest
 
     steps:
       # Step 1: Клонируем исходный код нашего проекта в контейнер
