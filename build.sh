@@ -25,7 +25,7 @@ echo "=== Шаг 1: Конфигурация проекта через CMake ===
 cmake .. -G Ninja \
     -DCMAKE_TOOLCHAIN_FILE="${QT_CMAKE_TOOLCHAIN}" \
     -DANDROID_ABI="arm64-v8a" \
-    -DANDROID_PLATFORM="latest" \
+    -DANDROID_PLATFORM="android-34" \
     -DCMAKE_BUILD_TYPE="Release"
 
 echo "=== Шаг 2: Компиляция и сборка APK ==="
