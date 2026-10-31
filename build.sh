@@ -4,9 +4,9 @@ set -e # Останавливать скрипт при любой ошибке
 # =====================================================================
 # НАСТРОЙКА ПУТЕЙ (Укажите ваши актуальные пути)
 # =====================================================================
-export ANDROID_SDK_ROOT="/home/user/Android/Sdk"
-export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/26.1.10909125"
-export QT_ANDROID_PATH="/home/user/Qt/6.8.0/android_arm64_v8a"
+#export ANDROID_SDK_ROOT="/home/user/Android/Sdk"
+#export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/26.1.10909125"
+#export QT_ANDROID_PATH="/home/user/Qt/6.8.0/android_arm64_v8a"
 
 TARGET_ABI="arm64-v8a"     # Архитектура: arm64-v8a, armeabi-v7a, x86_64
 ANDROID_API_LEVEL="34"    # Целевая версия Android API
