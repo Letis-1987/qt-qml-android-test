@@ -1,33 +1,36 @@
 #!/bin/bash
-set -e # Останавливать скрипт при любой ошибке
+# Останавливать выполнение скрипта при любой ошибке
+set -e
 
-# =====================================================================
-# НАСТРОЙКА ПУТЕЙ (Укажите ваши актуальные пути)
-# =====================================================================
-export ANDROID_SDK_ROOT="/home/user/Android/Sdk"
-export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/26.1.10909125"
-export QT_ANDROID_PATH="/home/user/Qt/6.8.0/android_arm64_v8a"
+echo "=== Запуск процесса сборки Qt Android проекта ==="
 
-TARGET_ABI="arm64-v8a"     # Архитектура: arm64-v8a, armeabi-v7a, x86_64
-ANDROID_API_LEVEL="34"    # Целевая версия Android API
-BUILD_DIR="build_android"
-# =====================================================================
+# Определение путей сборки
+BUILD_DIR="build"
+QT_CMAKE_TOOLCHAIN="${QT_ANDROID_DIR}/lib/cmake/Qt6/qt.toolchain.cmake"
 
-echo "=== [1/3] Конфигурация проекта (CMake -> Ninja) ==="
-# Утилита qt-cmake автоматически настраивает Clang из Android NDK
-$QT_ANDROID_PATH/bin/qt-cmake -G "Ninja" \
-    -S . \
-    -B $BUILD_DIR \
-    -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
-    -DANDROID_NDK_ROOT="$ANDROID_NDK_ROOT" \
-    -DANDROID_ABI="$TARGET_ABI" \
-    -DANDROID_PLATFORM="android-$ANDROID_API_LEVEL"
+# Удаление старой сборки, если она существует
+if [ -d "$BUILD_DIR" ]; then
+    echo "Очистка старой директории сборки..."
+    rm -rf "$BUILD_DIR"
+fi
 
-echo "=== [2/3] Компиляция C++ и QML ресурсов (Ninja) ==="
-cmake --build $BUILD_DIR --target all
+mkdir "$BUILD_DIR"
+cd "$BUILD_DIR"
 
-echo "=== [3/3] Упаковка в APK (androiddeployqt) ==="
-# Команда 'apk' запускает сборку финального пакета через Gradle
-cmake --build $BUILD_DIR --target apk
+echo "=== Шаг 1: Конфигурация проекта через CMake ==="
+# Основные параметры:
+# - CMAKE_TOOLCHAIN_FILE: Передает настройки Qt для кросс-компиляции под Android
+# - ANDROID_ABI: Явно задаем архитектуру arm64-v8a
+# - ANDROID_PLATFORM: Указываем API 35 (как установлено в SDK)
+cmake .. -G Ninja \
+    -DCMAKE_TOOLCHAIN_FILE="${QT_CMAKE_TOOLCHAIN}" \
+    -DANDROID_ABI="arm64-v8a" \
+    -DANDROID_PLATFORM="android-35" \
+    -DCMAKE_BUILD_TYPE="Release"
 
-echo "=== Сборка завершена! Готовый APK ищите в недрах папки $BUILD_DIR ==="
+echo "=== Шаг 2: Компиляция и сборка APK ==="
+# Цель 'apk' заставит CMake не просто скомпилировать бинарники, 
+# но и вызвать androiddeployqt для упаковки в готовый .apk пакет
+cmake --build . --target apk
+
+echo "=== Сборка успешно завершена! ==="
